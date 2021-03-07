@@ -1,0 +1,23 @@
+[package]
+name = "mem-psd"
+version = "0.1.0"
+authors = ["Akishika Issui <kshkss@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "mem_psd"
+crate-type = ["cdylib"]
+
+[dependencies]
+num-complex = "0.3"
+ndarray = "0.14"
+numpy = "0.13"
+
+[dependencies.pyo3]
+version = "0.13"
+features = ["extension-module"]
+
+[dev-dependencies]
+ndarray-npy = "0.7"
