@@ -130,7 +130,7 @@ mod tests {
     }
 
     #[test]
-    fn it_works() {
+    fn sgn() {
         // Prepare dataset
         let xs = Array1::<f64>::linspace(-5., 4.99, 1000);
         let mut ys = Array1::<f64>::zeros(1000);
@@ -150,4 +150,36 @@ mod tests {
         assert!(write_npy("sgn.npy", &stack![Axis(1), xs, ys]).is_ok());
         assert!(write_npy("sgn_result.npy", &stack![Axis(1), q, _f]).is_ok());
     }
+
+    #[test]
+    fn gauss() {
+        // Prepare dataset
+        let xs = Array1::<f64>::linspace(-10., 10., 1000);
+        let ys = xs.map(|x| (-1.0 * x.powf(2.)).exp());
+
+        // Compute PSD
+        let q = Array1::<f64>::linspace(0., 3., 100);
+        let _f = berg(361, xs[1] - xs[0], &ys.view(), &q.view());
+
+        // Save result
+        assert!(write_npy("gauss.npy", &stack![Axis(1), xs, ys]).is_ok());
+        assert!(write_npy("gauss_result.npy", &stack![Axis(1), q, _f]).is_ok());
+    }
+
+    /*
+    #[test]
+    fn exp() {
+        // Prepare dataset
+        let xs = Array1::<f64>::linspace(-20., 20., 2000);
+        let ys = xs.map(|x| (-1.0 * x.abs()).exp());
+
+        // Compute PSD
+        let q = Array1::<f64>::linspace(-1., 1.5, 100);
+        let _f = berg(1000, xs[1] - xs[0], &ys.view(), &q.view());
+
+        // Save result
+        assert!(write_npy("exp.npy", &stack![Axis(1), xs, ys]).is_ok());
+        assert!(write_npy("exp_result.npy", &stack![Axis(1), q, _f]).is_ok());
+    }
+    */
 }
