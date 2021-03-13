@@ -142,7 +142,7 @@ mod tests {
 
         // Compute PSD
         let q = Array1::<f64>::linspace(-1., 1.5, 100);
-        let f = berg(1000, xs[1] - xs[0], &ys.view(), &q.view());
+        let f = berg(100, xs[1] - xs[0], &ys.view(), &q.view());
 
         // Save result
         assert!(write_npy("exp.npy", &stack![Axis(1), xs, ys]).is_ok());
