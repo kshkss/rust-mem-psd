@@ -41,17 +41,18 @@ fn variance(gamma: &ArrayView1<f64>, y: &ArrayView1<f64>) -> Array1<f64> {
     p
 }
 
-fn power_spector(dt: f64, p: f64, gamma: &ArrayView1<f64>, q: &ArrayView1<f64>) -> Array1<f64> {
-    let mut f = Array1::<Complex64>::ones(q.shape()[0]);
-    for gamma_k in gamma.slice(s![1..]).iter() {
-        f += &q.map(|x| {
-            Complex64::new(0., -2. * std::f64::consts::PI * x * dt)
+fn power_spector(dt: f64, p: f64, gamma: &ArrayView1<f64>, qs: &ArrayView1<f64>) -> Array1<f64> {
+    let mut f = Array1::<Complex64>::ones(qs.shape()[0]);
+    for (gamma_k, k) in gamma.slice(s![1..]).iter().zip(1..) {
+        f += &qs.map(|q| {
+            let k_ = k as f64;
+            Complex64::new(0., -2. * std::f64::consts::PI * q * k_ * dt)
                 .exp()
                 .scale(*gamma_k)
         });
     }
 
-    let psd = dt * p / f.map(|x| x.norm().powf(2.));
+    let psd = dt * p / f.map(|x| x.re.powf(2.) + x.im.powf(2.));
     psd
 }
 
