@@ -5,6 +5,7 @@ use ndarray::ArrayView1;
 use ndarray::Zip;
 
 use num_complex::Complex64;
+use num_traits::identities::One;
 
 pub fn reflection_coeff(max_lag: usize, y: &ArrayView1<f64>) -> Array2<f64> {
     let mut gamma = Array2::<f64>::zeros((max_lag + 1, max_lag + 1));
@@ -14,10 +15,11 @@ pub fn reflection_coeff(max_lag: usize, y: &ArrayView1<f64>) -> Array2<f64> {
         let mut a = 0.;
         let mut b = 0.;
 
+        let ac = gamma.slice(s![lag - 1, 0..lag]);
+        let bc = gamma.slice(s![lag - 1, 0..lag;-1]);
         for n in 0..y.shape()[0] - lag {
-            let forward = (&gamma.slice(s![lag - 1, 0..lag]) * &y.slice(s![n..n + lag])).sum();
-            let backward =
-                (&gamma.slice(s![lag - 1, 0..lag]) * &y.slice(s![n + 1..n + 1 + lag;-1])).sum();
+            let forward = (&ac * &y.slice(s![n..n + lag])).sum();
+            let backward = (&bc * &y.slice(s![n + 1..n + 1 + lag])).sum();
             a += forward * backward;
             b += forward.powf(2.) + backward.powf(2.);
         }
@@ -50,14 +52,11 @@ pub fn power_spector(
 ) -> Array1<f64> {
     let ks = Array1::<f64>::linspace(1., gamma.shape()[0] as f64 - 1., gamma.shape()[0] - 1);
     let psd = qs.map(|qk| {
-        let a = Zip::from(&ks).and(gamma.slice(s![1..])).fold(
-            Complex64::new(1., 0.),
-            |acc, &k, &gk| {
-                acc + Complex64::new(0., -2. * std::f64::consts::PI * qk * dt * k)
-                    .exp()
-                    .scale(gk)
-            },
-        );
+        let a = Zip::from(&ks)
+            .and(gamma.slice(s![1..]))
+            .fold(Complex64::one(), |acc, &k, &gk| {
+                acc + Complex64::from_polar(gk, -2. * std::f64::consts::PI * qk * dt * k)
+            });
         dt * p / (a.re.powf(2.) + a.im.powf(2.))
     });
 
