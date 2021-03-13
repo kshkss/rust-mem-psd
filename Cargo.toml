@@ -11,6 +11,7 @@ name = "mem_psd"
 crate-type = ["cdylib"]
 
 [dependencies]
+num-traits = "0.2"
 num-complex = "0.3"
 ndarray = "0.14"
 numpy = "0.13"
