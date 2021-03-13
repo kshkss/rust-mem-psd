@@ -2,6 +2,7 @@ use ndarray::s;
 use ndarray::Array1;
 use ndarray::Array2;
 use ndarray::ArrayView1;
+use ndarray::Zip;
 
 use num_complex::Complex64;
 
@@ -35,24 +36,23 @@ fn variance(gamma: &ArrayView1<f64>, y: &ArrayView1<f64>) -> Array1<f64> {
     p[0] = y.map(|x| x.powf(2.)).mean().unwrap();
 
     for i in 1..p.shape()[0] {
-        p[i] = p[i - 1] * (1. - gamma[i].powi(2));
+        p[i] = p[i - 1] * (1. - gamma[i].powf(2.));
     }
 
     p
 }
 
 fn power_spector(dt: f64, p: f64, gamma: &ArrayView1<f64>, qs: &ArrayView1<f64>) -> Array1<f64> {
-    let mut f = Array1::<Complex64>::ones(qs.shape()[0]);
-    for (gamma_k, k) in gamma.slice(s![1..]).iter().zip(1..) {
-        f += &qs.map(|q| {
-            let k_ = k as f64;
-            Complex64::new(0., -2. * std::f64::consts::PI * q * k_ * dt)
+    let ks = Array1::<f64>::linspace(1., gamma.shape()[0] as f64 - 1., gamma.shape()[0] - 1);
+    let psd = qs.map(|qk| {
+        let a = Zip::from(&ks).and(gamma.slice(s![1..])).fold(Complex64::new(1., 0.), |acc, &k, &gk| {
+            acc + Complex64::new(0., -2. * std::f64::consts::PI * qk * dt * k)
                 .exp()
-                .scale(*gamma_k)
+                .scale(gk)
         });
-    }
+        dt * p / (a.re.powf(2.) + a.im.powf(2.))
+    });
 
-    let psd = dt * p / f.map(|x| x.re.powf(2.) + x.im.powf(2.));
     psd
 }
 
