@@ -16,10 +16,11 @@ pub fn reflection_coeff(max_lag: usize, y: &ArrayView1<Complex64>) -> Array2<Com
         let mut a = Complex64::zero();
         let mut b = Complex64::zero();
 
+        let ac = gamma.slice(s![lag - 1, 0..lag]).map(|x| x.conj());
+        let bc = gamma.slice(s![lag - 1, 0..lag;-1]);
         for n in 0..y.shape()[0] - lag {
-            let forward = (&gamma.slice(s![lag - 1, 0..lag]) * &y.slice(s![n..n + lag])).sum();
-            let backward =
-                (&gamma.slice(s![lag - 1, 0..lag]) * &y.slice(s![n + 1..n + 1 + lag;-1])).sum();
+            let forward = (&ac * &y.slice(s![n..n + lag])).sum();
+            let backward = (&bc * &y.slice(s![n + 1..n + 1 + lag])).sum();
             a += forward.conj() * backward;
             b += forward.re.powf(2.)
                 + forward.im.powf(2.)
