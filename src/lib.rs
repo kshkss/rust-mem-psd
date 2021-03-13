@@ -145,11 +145,11 @@ mod tests {
 
         // Compute PSD
         let q = Array1::<f64>::logspace(10., -5., 2., 100);
-        let _f = berg(100, xs[1] - xs[0], &ys.view(), &q.view());
+        let f = berg(100, xs[1] - xs[0], &ys.view(), &q.view());
 
         // Save result
         assert!(write_npy("sgn.npy", &stack![Axis(1), xs, ys]).is_ok());
-        assert!(write_npy("sgn_result.npy", &stack![Axis(1), q, _f]).is_ok());
+        assert!(write_npy("sgn_result.npy", &stack![Axis(1), q, f]).is_ok());
     }
 
     #[test]
@@ -160,11 +160,11 @@ mod tests {
 
         // Compute PSD
         let q = Array1::<f64>::linspace(0., 3., 100);
-        let _f = berg(361, xs[1] - xs[0], &ys.view(), &q.view());
+        let f = berg(361, xs[1] - xs[0], &ys.view(), &q.view());
 
         // Save result
         assert!(write_npy("gauss.npy", &stack![Axis(1), xs, ys]).is_ok());
-        assert!(write_npy("gauss_result.npy", &stack![Axis(1), q, _f]).is_ok());
+        assert!(write_npy("gauss_result.npy", &stack![Axis(1), q, f]).is_ok());
     }
 
     /*
@@ -176,11 +176,11 @@ mod tests {
 
         // Compute PSD
         let q = Array1::<f64>::linspace(-1., 1.5, 100);
-        let _f = berg(1000, xs[1] - xs[0], &ys.view(), &q.view());
+        let f = berg(1000, xs[1] - xs[0], &ys.view(), &q.view());
 
         // Save result
         assert!(write_npy("exp.npy", &stack![Axis(1), xs, ys]).is_ok());
-        assert!(write_npy("exp_result.npy", &stack![Axis(1), q, _f]).is_ok());
+        assert!(write_npy("exp_result.npy", &stack![Axis(1), q, f]).is_ok());
     }
     */
 }
