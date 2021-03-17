@@ -5,6 +5,10 @@ use pyo3::prelude::{pymodule, PyModule, PyResult, Python};
 pub mod berg_c64;
 pub mod berg_f64;
 
+mod psd1d;
+
+pub use psd1d::*;
+
 #[pymodule]
 fn rust_ext(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     #[pyfn(m, "reflection_coeff_f64")]
