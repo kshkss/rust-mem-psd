@@ -2,8 +2,8 @@ use num_complex::Complex64;
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray1};
 use pyo3::prelude::{pymodule, PyModule, PyResult, Python};
 
-pub mod berg_c64;
-pub mod berg_f64;
+mod berg_c64;
+mod berg_f64;
 
 mod psd1d;
 
