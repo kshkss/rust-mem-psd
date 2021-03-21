@@ -8,13 +8,14 @@ edition = "2018"
 
 [lib]
 name = "mem_psd"
-crate-type = ["cdylib"]
+crate-type = ["lib", "cdylib"]
 
 [dependencies]
 num-traits = "0.2"
 num-complex = "0.3"
 ndarray = "0.14"
 numpy = "0.13"
+smartcore = "0.2"
 
 [dependencies.pyo3]
 version = "0.13"
