@@ -5,9 +5,7 @@ use pyo3::prelude::{pymodule, PyModule, PyResult, Python};
 mod berg_c64;
 mod berg_f64;
 
-mod psd1d;
-
-pub use psd1d::*;
+pub mod smartcore;
 
 #[pymodule]
 fn rust_ext(_py: Python<'_>, m: &PyModule) -> PyResult<()> {

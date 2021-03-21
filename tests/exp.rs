@@ -1,4 +1,4 @@
-use mem_psd::*;
+use mem_psd::smartcore::*;
 use ndarray::s;
 use ndarray::stack;
 use ndarray::stack_new_axis;
