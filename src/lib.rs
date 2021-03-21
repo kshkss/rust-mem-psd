@@ -6,6 +6,7 @@ mod berg_c64;
 mod berg_f64;
 
 pub mod smartcore;
+pub mod linfa;
 
 #[pymodule]
 fn rust_ext(_py: Python<'_>, m: &PyModule) -> PyResult<()> {

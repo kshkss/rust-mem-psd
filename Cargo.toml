@@ -16,6 +16,7 @@ num-complex = "0.3"
 ndarray = "0.14"
 numpy = "0.13"
 smartcore = "0.2"
+linfa = "0.3"
 
 [dependencies.pyo3]
 version = "0.13"
