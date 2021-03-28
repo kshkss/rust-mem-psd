@@ -9,13 +9,13 @@ use smartcore::api::Predictor;
 use smartcore::api::UnsupervisedEstimator;
 use smartcore::error::Failed;
 
-use super::psd1d::PSDParameters;
-use super::psd1d::PSD1D;
+use super::psd1d::PsdParameters;
+use super::psd1d::Psd1d;
 
 pub struct Cpsd1d<T> {
-    auto: PSD1D<T>,
-    co: PSD1D<T>,
-    quad: PSD1D<Complex64>,
+    auto: Psd1d<T>,
+    co: Psd1d<T>,
+    quad: Psd1d<Complex64>,
 }
 
 impl<T> Cpsd1d<T> {
@@ -34,11 +34,11 @@ impl<T> Cpsd1d<T> {
     }
 }
 
-impl UnsupervisedEstimator<ArrayView2<'_, f64>, PSDParameters> for Cpsd1d<f64> {
-    fn fit(x: &ArrayView2<f64>, params: PSDParameters) -> Result<Self, Failed> {
+impl UnsupervisedEstimator<ArrayView2<'_, f64>, PsdParameters> for Cpsd1d<f64> {
+    fn fit(x: &ArrayView2<f64>, params: PsdParameters) -> Result<Self, Failed> {
         let samples = x.shape()[0];
         //let features = x.shape()[1];
-        let auto = PSD1D::<f64>::fit(x, params.clone())?;
+        let auto = Psd1d::<f64>::fit(x, params.clone())?;
 
         let combs = x.axis_iter(Axis(1)).combinations(2).count();
         let mut x_co = Array2::<f64>::zeros((samples, combs));
@@ -53,7 +53,7 @@ impl UnsupervisedEstimator<ArrayView2<'_, f64>, PSDParameters> for Cpsd1d<f64> {
                 .and(&xs[1])
                 .apply(|c, &a, &b| *c = a + b);
         }
-        let co = PSD1D::<f64>::fit(&x_co.view(), params.clone())?;
+        let co = Psd1d::<f64>::fit(&x_co.view(), params.clone())?;
 
         let mut x_quad = Array2::<Complex64>::zeros((samples, combs));
         for (xs, mut z) in x
@@ -66,7 +66,7 @@ impl UnsupervisedEstimator<ArrayView2<'_, f64>, PSDParameters> for Cpsd1d<f64> {
                 .and(&xs[1])
                 .apply(|c, &a, &b| *c = Complex64::new(a, b));
         }
-        let quad = PSD1D::<Complex64>::fit(&x_quad.view(), params)?;
+        let quad = Psd1d::<Complex64>::fit(&x_quad.view(), params)?;
 
         Ok(Self {
             auto: auto,
