@@ -21,7 +21,7 @@ fn sgn_f64() {
         }
     }
     let model =
-        PSD1D::<f64>::fit(&ys.view().insert_axis(Axis(0)), PSDParameters::new(100)).unwrap();
+        Psd1d::<f64>::fit(&ys.view().insert_axis(Axis(0)), PsdParameters::new(100)).unwrap();
     let model = model.with_delta(xs[1] - xs[0]);
     // Compute PSD
     let q = Array1::<f64>::logspace(10., -5., 2., 100);
@@ -49,7 +49,7 @@ fn sgn_c64() {
         }
     }
     let model =
-        PSD1D::<Complex64>::fit(&ys.view().insert_axis(Axis(0)), PSDParameters::new(100)).unwrap();
+        Psd1d::<Complex64>::fit(&ys.view().insert_axis(Axis(0)), PsdParameters::new(100)).unwrap();
     let model = model.with_delta(xs[1] - xs[0]);
 
     // Compute PSD

@@ -15,7 +15,7 @@ fn exp_f64() {
     let ys = xs.map(|x| (-1.0 * x.powf(2.)).exp());
 
     let model =
-        PSD1D::<f64>::fit(&ys.view().insert_axis(Axis(0)), PSDParameters::new(361)).unwrap();
+        Psd1d::<f64>::fit(&ys.view().insert_axis(Axis(0)), PsdParameters::new(361)).unwrap();
     let model = model.with_delta(xs[1] - xs[0]);
     // Compute PSD
     let q = Array1::<f64>::linspace(0., 3., 100);
@@ -36,7 +36,7 @@ fn gauss_c64() {
     let xs = Array1::<f64>::linspace(-10., 10., 1000);
     let ys = xs.map(|x| Complex64::new((-1.0 * x.powf(2.)).exp(), 0.));
     let model =
-        PSD1D::<Complex64>::fit(&ys.view().insert_axis(Axis(0)), PSDParameters::new(361)).unwrap();
+        Psd1d::<Complex64>::fit(&ys.view().insert_axis(Axis(0)), PsdParameters::new(361)).unwrap();
     let model = model.with_delta(xs[1] - xs[0]);
 
     // Compute PSD
