@@ -1,29 +1,27 @@
-use num_complex::Complex64;
 use ndarray::s;
 use ndarray::Array1;
 use ndarray::Array2;
 use ndarray::ArrayBase;
-use ndarray::ViewRepr;
 use ndarray::ArrayView1;
-use ndarray::Ix2;
 use ndarray::ArrayView2;
+use ndarray::Ix2;
+use ndarray::ViewRepr;
+use num_complex::Complex64;
 use smartcore::api::Predictor;
 use smartcore::api::UnsupervisedEstimator;
 use smartcore::error::Failed;
 
-use crate::berg_f64;
 use crate::berg_c64;
+use crate::berg_f64;
 
 #[derive(Debug, Clone)]
-pub struct PSDParameters {
+pub struct PsdParameters {
     pub max_lag: usize,
 }
 
-impl PSDParameters {
+impl PsdParameters {
     pub fn new(max_lag: usize) -> Self {
-        Self {
-            max_lag: max_lag,
-        }
+        PsdParameters { max_lag: max_lag }
     }
 
     pub fn with_max_lag(mut self, max_lag: usize) -> Self {
@@ -32,14 +30,14 @@ impl PSDParameters {
     }
 }
 
-pub struct PSD1D<T> {
+pub struct Psd1d<T> {
     lag: usize,
     delta: f64,
     gamma: Vec<Array2<T>>,
     p: Vec<Array1<f64>>,
 }
 
-impl<T> PSD1D<T> {
+impl<T> Psd1d<T> {
     pub fn with_delta(mut self, delta: f64) -> Self {
         self.delta = delta;
         self
@@ -55,8 +53,8 @@ impl<T> PSD1D<T> {
     }
 }
 
-impl PSD1D<f64> {
-    fn _fit(max_lag: usize, x: &ArrayView2::<f64>) -> Self {
+impl Psd1d<f64> {
+    fn _fit(max_lag: usize, x: &ArrayView2<f64>) -> Self {
         let max_lag = usize::min(max_lag, x.shape()[0]);
         let mut gammas = Vec::new();
         let mut ps = Vec::new();
@@ -70,7 +68,7 @@ impl PSD1D<f64> {
 
         let lag = max_lag;
 
-        Self {
+        Psd1d {
             delta: 1.,
             lag: lag,
             gamma: gammas,
@@ -78,30 +76,35 @@ impl PSD1D<f64> {
         }
     }
 
-    fn _predict(&self, x: &ArrayView1::<f64>) -> Array2::<f64> {
+    fn _predict(&self, x: &ArrayView1<f64>) -> Array2<f64> {
         let mut y = Array2::<f64>::zeros((self.p.len(), x.shape()[0]));
 
         for (k, (p, gamma)) in self.p.iter().zip(self.gamma.iter()).enumerate() {
-            y.slice_mut(s![k, ..]).assign(&berg_f64::power_spector(self.delta, p[self.lag], &gamma.slice(s![self.lag, ..]), x));
+            y.slice_mut(s![k, ..]).assign(&berg_f64::power_spector(
+                self.delta,
+                p[self.lag],
+                &gamma.slice(s![self.lag, ..]),
+                x,
+            ));
         }
         y
     }
 }
 
-impl UnsupervisedEstimator<ArrayView2<'_, f64>, PSDParameters> for PSD1D<f64> {
-    fn fit(x: &ArrayView2::<f64>, params: PSDParameters) -> Result<Self, Failed> {
-        Ok(PSD1D::<f64>::_fit(params.max_lag, x))
+impl UnsupervisedEstimator<ArrayView2<'_, f64>, PsdParameters> for Psd1d<f64> {
+    fn fit(x: &ArrayView2<f64>, params: PsdParameters) -> Result<Self, Failed> {
+        Ok(Psd1d::<f64>::_fit(params.max_lag, x))
     }
 }
 
-impl Predictor<ArrayView1<'_, f64>, Array2::<f64>> for PSD1D<f64> {
-    fn predict(&self, x: &ArrayView1::<f64>) -> Result<Array2::<f64>, Failed> {
+impl Predictor<ArrayView1<'_, f64>, Array2<f64>> for Psd1d<f64> {
+    fn predict(&self, x: &ArrayView1<f64>) -> Result<Array2<f64>, Failed> {
         Ok(self._predict(x))
     }
 }
 
-impl PSD1D<Complex64> {
-    fn _fit(max_lag: usize, x: &ArrayView2::<Complex64>) -> Self {
+impl Psd1d<Complex64> {
+    fn _fit(max_lag: usize, x: &ArrayView2<Complex64>) -> Self {
         let max_lag = usize::min(max_lag, x.shape()[0]);
         let mut gammas = Vec::new();
         let mut ps = Vec::new();
@@ -115,7 +118,7 @@ impl PSD1D<Complex64> {
 
         let lag = max_lag;
 
-        Self {
+        Psd1d {
             delta: 1.,
             lag: lag,
             gamma: gammas,
@@ -123,25 +126,29 @@ impl PSD1D<Complex64> {
         }
     }
 
-    fn _predict(&self, x: &ArrayView1::<f64>) -> Array2::<f64> {
+    fn _predict(&self, x: &ArrayView1<f64>) -> Array2<f64> {
         let mut y = Array2::<f64>::zeros((self.p.len(), x.shape()[0]));
 
         for (k, (p, gamma)) in self.p.iter().zip(self.gamma.iter()).enumerate() {
-            y.slice_mut(s![k, ..]).assign(&berg_c64::power_spector(self.delta, p[self.lag], &gamma.slice(s![self.lag, ..]), x));
+            y.slice_mut(s![k, ..]).assign(&berg_c64::power_spector(
+                self.delta,
+                p[self.lag],
+                &gamma.slice(s![self.lag, ..]),
+                x,
+            ));
         }
         y
     }
 }
 
-impl UnsupervisedEstimator<ArrayView2<'_, Complex64>, PSDParameters> for PSD1D<Complex64> {
-    fn fit(x: &ArrayView2::<Complex64>, params: PSDParameters) -> Result<Self, Failed> {
-        Ok(PSD1D::<Complex64>::_fit(params.max_lag, x))
+impl UnsupervisedEstimator<ArrayView2<'_, Complex64>, PsdParameters> for Psd1d<Complex64> {
+    fn fit(x: &ArrayView2<Complex64>, params: PsdParameters) -> Result<Self, Failed> {
+        Ok(Psd1d::<Complex64>::_fit(params.max_lag, x))
     }
 }
 
-impl Predictor<ArrayView1<'_, f64>, Array2::<f64>> for PSD1D<Complex64> {
-    fn predict(&self, x: &ArrayView1::<f64>) -> Result<Array2::<f64>, Failed> {
+impl Predictor<ArrayView1<'_, f64>, Array2<f64>> for Psd1d<Complex64> {
+    fn predict(&self, x: &ArrayView1<f64>) -> Result<Array2<f64>, Failed> {
         Ok(self._predict(x))
     }
 }
-
